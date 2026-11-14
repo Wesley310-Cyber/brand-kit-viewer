@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Brand Kit Remap</title>
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Italiana&family=Outfit:wght@300;400;500;600&display=swap">
+<style>
+/* Layout: one large preview on the left, a quiet control column on the right, and a 12-kit gallery underneath that scrolls as a strip or opens as a grid. */
+:root{
+  --bg:#eceeef; --surface:#f8f9f9; --ink:#14181b; --muted:#4f5a63; --line:#cdd3d7; --line-strong:#6b7780;
+  --btn:#14181b; --on-btn:#f8f9f9; --focus:#14181b; --wash:#e2e6e8;
+  --font-display:"Italiana","Cormorant Garamond",Georgia,serif;
+  --font-body:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#101315; --surface:#181c1f; --ink:#eef1f3; --muted:#a2adb5; --line:#2c343a; --line-strong:#76838c;
+    --btn:#eef1f3; --on-btn:#101315; --focus:#eef1f3; --wash:#20262a; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101315; --surface:#181c1f; --ink:#eef1f3; --muted:#a2adb5; --line:#2c343a; --line-strong:#76838c;
+  --btn:#eef1f3; --on-btn:#101315; --focus:#eef1f3; --wash:#20262a; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink); font:400 16px/1.5 var(--font-body);
+  padding-block:32px 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:1240px; margin:0 auto; display:flex; flex-direction:column; gap:28px}
+header{display:flex; flex-direction:column; gap:6px; max-width:62ch}
+.eyebrow{font-size:12px; font-weight:600; letter-spacing:.2em; text-transform:uppercase; color:var(--muted)}
+h1{font:400 clamp(38px,6vw,60px)/1.02 var(--font-display); margin:0; text-wrap:balance}
+header p{margin:0; color:var(--muted); font-size:16px; max-width:60ch}
+header a{color:var(--ink)}
+button,input,label{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+
+.app{display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:24px; align-items:start}
+@media (max-width:900px){.app{grid-template-columns:minmax(0,1fr)}}
+
+.stage{background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:16px; display:flex; flex-direction:column; gap:14px; min-width:0}
+.canvas-box{position:relative; display:flex; justify-content:center; align-items:center; background:var(--wash); border-radius:4px; min-height:260px; padding:12px}
+.canvas-box.drag{outline:2px dashed var(--focus); outline-offset:-6px}
+#view{display:block; max-width:100%; max-height:68vh; width:auto; height:auto; border-radius:2px}
+#view.pick{cursor:crosshair}
+.caption{display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:space-between}
+.cap-main{display:flex; flex-direction:column; gap:2px; min-width:0}
+.cap-name{font:400 clamp(26px,4vw,34px)/1.1 var(--font-display)}
+.cap-sub{font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums}
+.swatches{display:flex; gap:0; border:1px solid var(--line-strong); border-radius:3px; overflow:hidden}
+.swatches i{display:block; width:34px; height:26px}
+.swatches i.g{width:12px}
+.navbtns{display:flex; gap:8px}
+.icon-btn{width:44px; height:44px; border-radius:4px; border:1px solid var(--line-strong); background:var(--surface); color:var(--ink); display:grid; place-items:center}
+.icon-btn:hover{background:var(--wash)}
+.icon-btn svg{width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round}
+
+.controls{background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:18px; display:flex; flex-direction:column; gap:20px}
+.field{display:flex; flex-direction:column; gap:8px; border:0; padding:0; margin:0; min-width:0}
+.field>legend,.field>.lab{font-size:12px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); padding:0}
+.seg{display:grid; grid-template-columns:repeat(3,1fr); border:1px solid var(--line-strong); border-radius:4px; overflow:hidden}
+.seg label{position:relative}
+.seg input{position:absolute; opacity:0; inset:0; margin:0; cursor:pointer}
+.seg span{display:flex; align-items:center; justify-content:center; min-height:44px; font-size:15px; font-weight:500; border-left:1px solid var(--line-strong)}
+.seg label:first-child span{border-left:0}
+.seg input:checked+span{background:var(--btn); color:var(--on-btn)}
+.seg input:focus-visible+span{outline:2px solid var(--focus); outline-offset:-4px}
+.check{display:flex; align-items:center; gap:10px; min-height:44px; font-size:15px}
+.check input{width:20px; height:20px; accent-color:var(--btn); margin:0}
+.btn{min-height:44px; padding:0 16px; border-radius:4px; border:1px solid var(--line-strong); background:var(--surface); color:var(--ink); font-weight:500; font-size:15px; display:inline-flex; align-items:center; justify-content:center; gap:8px; text-align:center}
+.btn:hover{background:var(--wash)}
+.btn.primary{background:var(--btn); color:var(--on-btn); border-color:var(--btn)}
+.btn.primary:hover{opacity:.9}
+.btn[aria-pressed="true"]{background:var(--btn); color:var(--on-btn); border-color:var(--btn)}
+.btn[hidden]{display:none}
+.row{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.chip{width:28px; height:28px; border-radius:3px; border:1px solid var(--line-strong); flex:none}
+.hint{font-size:13px; color:var(--muted); margin:0; line-height:1.45}
+input[type=range]{width:100%; accent-color:var(--btn); min-height:32px; margin:0}
+.rangehead{display:flex; justify-content:space-between; font-size:14px}
+.rangehead output{font-variant-numeric:tabular-nums; color:var(--muted)}
+.file{display:flex; flex-direction:column; gap:6px}
+.file input{position:absolute; width:1px; height:1px; opacity:0; pointer-events:none}
+.file-name{font-size:13px; color:var(--muted); overflow-wrap:anywhere}
+.status{font-size:13px; color:var(--muted); min-height:20px}
+
+.gallery{display:flex; flex-direction:column; gap:12px; min-width:0}
+.ghead{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+.ghead h2{margin:0; font:400 28px/1.1 var(--font-display)}
+.strip{display:flex; gap:12px; overflow-x:auto; padding:4px 2px 14px; scroll-snap-type:x proximity}
+.strip.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); overflow:visible; padding-bottom:4px}
+.kit{scroll-snap-align:center; flex:0 0 168px; display:flex; flex-direction:column; gap:8px; text-align:left; padding:8px; border:1px solid var(--line); border-radius:6px; background:var(--surface); color:var(--ink); min-width:0}
+.strip.grid .kit{flex:initial}
+.kit:hover{border-color:var(--line-strong)}
+.kit[aria-pressed="true"]{border-color:var(--ink); box-shadow:0 0 0 1px var(--ink)}
+.kit canvas{display:block; width:100%; height:auto; border-radius:2px; background:var(--wash)}
+.kit b{font-weight:500; font-size:14px; line-height:1.2}
+.kit .sw{display:flex; height:10px; border-radius:2px; overflow:hidden; border:1px solid var(--line)}
+.kit .sw i{flex:1}
+.saveview{display:flex; flex-direction:column; gap:10px}
+.saveview img{display:block; max-width:100%; height:auto; border:1px solid var(--line); border-radius:3px}
+.note{font-size:13px; color:var(--muted); max-width:78ch; margin:0}
+@media (prefers-reduced-motion:no-preference){.kit{transition:border-color .15s}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow" id="eyebrow">Image tool · brand kits</div>
+    <h1>Brand Kit Remap</h1>
+    <p>Load an image and see it recolored in each of your brand kits. Brightness is mapped across the kit's colors, so detail stays and only the palette changes. <a href="/">Open the Brand Kit Viewer</a> to add or edit kits.</p>
+  </header>
+
+  <div class="app">
+    <section class="stage" aria-label="Preview">
+      <div class="canvas-box" id="drop">
+        <canvas id="view" width="10" height="10" aria-label="Remapped image preview" role="img"></canvas>
+      </div>
+      <div class="caption">
+        <div class="cap-main">
+          <div class="cap-name" id="capName" aria-live="polite">Loading kits…</div>
+          <div class="cap-sub" id="capSub"></div>
+        </div>
+        <div class="swatches" id="capSw" aria-hidden="true"></div>
+        <div class="navbtns">
+          <button class="icon-btn" id="prev" aria-label="Previous kit"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+          <button class="icon-btn" id="next" aria-label="Next kit"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="controls" aria-label="Controls">
+      <div class="field file">
+        <span class="lab">Image</span>
+        <input type="file" id="file" accept="image/*">
+        <label for="file" class="btn" id="fileBtn" tabindex="0" role="button">Choose an image</label>
+        <span class="file-name" id="fileName">Sample image. You can also drop a file here or paste one.</span>
+      </div>
+
+      <fieldset class="field">
+        <legend>Ground</legend>
+        <div class="seg">
+          <label><input type="radio" name="opt" value="light" checked><span>Light</span></label>
+          <label><input type="radio" name="opt" value="night"><span>Night</span></label>
+          <label><input type="radio" name="opt" value="field"><span>Field</span></label>
+        </div>
+        <p class="hint">Light and Night use the kit's lightest and darkest color behind the figure. Field uses the kit's boldest mid color.</p>
+      </fieldset>
+
+      <div class="field">
+        <span class="lab">Background</span>
+        <label class="check"><input type="checkbox" id="rep" checked> Replace background</label>
+        <div class="row">
+          <button class="btn" id="pick" aria-pressed="false">Pick from image</button>
+          <span class="chip" id="gchip" title="Detected background color"></span>
+        </div>
+        <div>
+          <div class="rangehead"><label for="tol">Background match</label><output id="tolOut">42</output></div>
+          <input type="range" id="tol" min="8" max="140" value="42">
+        </div>
+        <p class="hint" id="gHint">Click Pick from image, then click the part of the picture to replace.</p>
+      </div>
+
+      <div class="field">
+        <div class="rangehead"><label for="bri">Brightness</label><output id="briOut">0</output></div>
+        <input type="range" id="bri" min="-50" max="50" value="0">
+      </div>
+
+      <div class="field">
+        <button class="btn primary" id="save">Download PNG</button>
+        <div class="saveview" id="saveview" hidden>
+          <img id="saveimg" alt="Remapped image, ready to save">
+          <p class="hint">Right-click the image and choose Save image. On a phone, press and hold it.</p>
+          <button class="btn" id="saveclose">Close</button>
+        </div>
+        <div class="status" id="status" role="status" aria-live="polite"></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="gallery" aria-label="Brand kits">
+    <div class="ghead">
+      <h2 id="ghTitle">All kits</h2>
+      <button class="btn" id="layout" aria-pressed="false">Show as grid</button>
+    </div>
+    <div class="strip" id="strip"></div>
+    <p class="note">Kits are read live from the Brand Kit Viewer, so a kit added there appears here the next time this page opens. Images are processed in your browser and are not uploaded. Working size is capped at 1800 px on the long edge.</p>
+  </section>
+</div>
+
+<script>
+(function(){
+"use strict";
+var KITS=[];
+var OPTS={light:"Light ground",night:"Night ground",field:"Field ground"};
+var BASE=[0,.28,.58,.82,1];
+/* Tone stops for a kit of n colors: the same curve the five-color kits use, resampled. */
+function stopsFor(n){var o=[];for(var i=0;i<n;i++){var p=i/(n-1)*4,f=Math.min(3,Math.floor(p));o.push(BASE[f]+(BASE[f+1]-BASE[f])*(p-f));}return o;}
+var MAXW=1800, THUMBW=220;
+
+function hex(h){h=h.replace("#","");return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+function relLum(c){var a=c.map(function(v){v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4);});return .2126*a[0]+.7152*a[1]+.0722*a[2];}
+function mix(a,b,t){return [a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];}
+function chroma(c){return Math.max(c[0],c[1],c[2])-Math.min(c[0],c[1],c[2]);}
+/* Turn a kit from the viewer into what the remap needs: colors sorted dark to light, plus three grounds.
+   Light = lightest color, Night = darkest, Field = the most colorful of the ones in between. */
+function prepKit(k){
+  var cols=(k.colors||[]).map(function(c){return c&&c.hex;}).filter(function(x){return /^#[0-9a-fA-F]{6}$/.test(x||"");});
+  if(cols.length<2)return null;
+  var rgb=cols.map(hex).sort(function(a,b){return relLum(a)-relLum(b);});
+  var mids=rgb.slice(1,-1), field=mids.length?mids.reduce(function(a,b){return chroma(b)>chroma(a)?b:a;}):rgb[0];
+  return {id:k.id,name:k.name,order:k.order,rgb:rgb,stops:stopsFor(rgb.length),grgb:{light:rgb[rgb.length-1],night:rgb[0],field:field}};
+}
+
+var $=function(s){return document.querySelector(s);};
+var S={w:0,h:0,l:null,noise:null,mask:null,loF:0,hiF:1,loA:0,hiA:1,ground:[224,156,68],pick:null,cover:0,
+       kit:0,opt:"light",rep:true,tol:42,bri:0,name:"image",picking:false,wide:false};
+var savedKit="";
+try{var sv=JSON.parse(localStorage.getItem("kitremap")||"{}");
+  if(typeof sv.kitId==="string")savedKit=sv.kitId;
+  if(OPTS[sv.opt])S.opt=sv.opt;}catch(e){}
+function persist(){try{localStorage.setItem("kitremap",JSON.stringify({kitId:KITS[S.kit]?KITS[S.kit].id:"",opt:S.opt}));}catch(e){}}
+
+var view=$("#view"), strip=$("#strip"), thumbs=[];
+
+/* ---------- image loading ---------- */
+function loadCanvas(src,name,label){
+  var sw=src.width, sh=src.height, sc=Math.min(1,MAXW/Math.max(sw,sh));
+  var w=Math.max(1,Math.round(sw*sc)), h=Math.max(1,Math.round(sh*sc));
+  var c=document.createElement("canvas"); c.width=w; c.height=h;
+  var x=c.getContext("2d",{willReadFrequently:true}); x.drawImage(src,0,0,w,h);
+  var d=x.getImageData(0,0,w,h).data, n=w*h, l=new Float32Array(n);
+  S.rgb=d;
+  for(var i=0;i<n;i++){var p=i*4; l[i]=(0.299*d[p]+0.587*d[p+1]+0.114*d[p+2])/255;}
+  var noise=new Int8Array(n), s=123456789;
+  for(var j=0;j<n;j++){s^=s<<13;s^=s>>>17;s^=s<<5;noise[j]=((s&7)-3);}
+  S.w=w;S.h=h;S.l=l;S.noise=noise;S.pick=null;S.name=(name||"image").replace(/\.[^.]+$/,"").replace(/[^\w-]+/g,"-").slice(0,40)||"image";
+  $("#fileName").textContent=label||name||"Image";
+  detectGround(); buildMask(); renderAll(true);
+}
+function detectGround(){
+  var w=S.w,h=S.h,d=S.rgb,bk={},best=null,bn=0;
+  function add(x,y){var p=(y*w+x)*4,r=d[p],g=d[p+1],b=d[p+2],k=(r>>4)+","+(g>>4)+","+(b>>4),e=bk[k];
+    if(!e)e=bk[k]={n:0,r:0,g:0,b:0}; e.n++;e.r+=r;e.g+=g;e.b+=b; if(e.n>bn){bn=e.n;best=e;}}
+  for(var x=0;x<w;x+=3){add(x,0);add(x,1);add(x,h-1);add(x,h-2);}
+  for(var y=0;y<h;y+=3){add(0,y);add(1,y);add(w-1,y);add(w-2,y);}
+  if(best)S.ground=[Math.round(best.r/best.n),Math.round(best.g/best.n),Math.round(best.b/best.n)];
+}
+function buildMask(){
+  var w=S.w,h=S.h,n=w*h,d=S.rgb,g=S.ground,t2=S.tol*S.tol;
+  var vis=new Uint8Array(n), stack=new Int32Array(n), sp=0;
+  function ok(i){var p=i*4,a=d[p]-g[0],b=d[p+1]-g[1],c=d[p+2]-g[2];return a*a+b*b+c*c<=t2;}
+  function seed(i){if(!vis[i]&&ok(i)){vis[i]=1;stack[sp++]=i;}}
+  for(var x=0;x<w;x++){seed(x);seed((h-1)*w+x);}
+  for(var y=0;y<h;y++){seed(y*w);seed(y*w+w-1);}
+  if(S.pick){var pi=S.pick.y*w+S.pick.x;if(!vis[pi]){vis[pi]=1;stack[sp++]=pi;}}
+  while(sp>0){
+    var i=stack[--sp],px=i%w;
+    if(px>0)seed(i-1); if(px<w-1)seed(i+1); if(i>=w)seed(i-w); if(i<n-w)seed(i+w);
+  }
+  var m=new Float32Array(n),cnt=0;
+  for(var k=0;k<n;k++){if(vis[k]){m[k]=1;cnt++;}}
+  S.cover=cnt/n;
+  /* soften the edge: two box-blur passes */
+  var tmp=new Float32Array(n);
+  for(var pass=0;pass<2;pass++){
+    for(var yy=0;yy<h;yy++){var r=yy*w;for(var xx=0;xx<w;xx++){var a=m[r+(xx>0?xx-1:xx)],b=m[r+xx],c=m[r+(xx<w-1?xx+1:xx)];tmp[r+xx]=(a+b+c)/3;}}
+    for(var y2=0;y2<h;y2++){var r0=(y2>0?y2-1:y2)*w,r1=y2*w,r2=(y2<h-1?y2+1:y2)*w;for(var x2=0;x2<w;x2++){m[r1+x2]=(tmp[r0+x2]+tmp[r1+x2]+tmp[r2+x2])/3;}}
+  }
+  S.mask=m;
+  /* tone range from figure pixels only, and from all pixels */
+  var hf=new Uint32Array(256),ha=new Uint32Array(256),nf=0;
+  for(var q=0;q<n;q++){var bi=Math.min(255,(S.l[q]*255)|0);ha[bi]++;if(m[q]<.5){hf[bi]++;nf++;}}
+  var rf=nf>n*0.02?pct(hf,nf):pct(ha,n), ra=pct(ha,n);
+  S.loF=rf[0];S.hiF=rf[1];S.loA=ra[0];S.hiA=ra[1];
+  var chip=$("#gchip"); chip.style.background="rgb("+g.join(",")+")";
+  $("#gHint").textContent=(S.pick?"Background picked from the image. ":"Background detected from the edges. ")+Math.round(S.cover*100)+"% of the picture will be replaced. Raise Background match if parts are left behind.";
+}
+function pct(hist,tot){
+  var lo=0,hi=255,acc=0,a=tot*.01,b=tot*.995;
+  for(var i=0;i<256;i++){acc+=hist[i];if(acc>=a){lo=i;break;}}
+  acc=0;for(var j=0;j<256;j++){acc+=hist[j];if(acc>=b){hi=j;break;}}
+  if(hi-lo<8){lo=0;hi=255;}
+  return [lo/255,hi/255];
+}
+
+/* ---------- rendering ---------- */
+function buildLut(kit,opt){
+  var gr=kit.grgb[opt], c=kit.rgb.slice(), ST=kit.stops;
+  if(Math.abs(relLum(gr)-relLum(c[0]))<.03) c[0]=mix(c[0],c[1],.4);
+  var gam=Math.pow(2,-S.bri/50), lut=new Uint8ClampedArray(256*3), gt=new Uint8Array(256);
+  for(var k=0;k<256;k++)gt[k]=Math.round(255*Math.pow(k/255,gam));
+  for(var i=0;i<256;i++){
+    var t=i/255,s=0; while(s<c.length-2&&t>ST[s+1])s++;
+    var u=(t-ST[s])/(ST[s+1]-ST[s]), col=mix(c[s],c[s+1],u);
+    lut[i*3]=col[0];lut[i*3+1]=col[1];lut[i*3+2]=col[2];
+  }
+  return {lut:lut,gt:gt,ground:gr};
+}
+function renderTo(cv,W,H,kitIdx,opt){
+  if(!S.l||!KITS[kitIdx])return;
+  var kit=KITS[kitIdx], B=buildLut(kit,opt), use=S.rep&&S.mask;
+  var lo=use?S.loF:S.loA, hi=use?S.hiF:S.hiA, inv=1/Math.max(.001,hi-lo);
+  cv.width=W;cv.height=H;
+  var ctx=cv.getContext("2d"), img=ctx.createImageData(W,H), o=img.data;
+  var gr=B.ground,lut=B.lut,gt=B.gt,l=S.l,m=S.mask,nz=S.noise,sw=S.w,sh=S.h, fx=sw/W, fy=sh/H;
+  var p=0;
+  for(var y=0;y<H;y++){
+    var sy=Math.min(sh-1,(y*fy)|0)*sw;
+    for(var x=0;x<W;x++){
+      var i=sy+Math.min(sw-1,(x*fx)|0);
+      var t=((l[i]-lo)*inv*255)|0; if(t<0)t=0; else if(t>255)t=255;
+      var li=gt[t]*3, mk=use?m[i]:0, im=1-mk, n=nz[i]*im;
+      o[p]=lut[li]*im+gr[0]*mk+n; o[p+1]=lut[li+1]*im+gr[1]*mk+n; o[p+2]=lut[li+2]*im+gr[2]*mk+n; o[p+3]=255; p+=4;
+    }
+  }
+  ctx.putImageData(img,0,0);
+}
+function renderMain(){
+  $("#saveview").hidden=true;
+  var k=KITS[S.kit]; if(!k)return;
+  renderTo(view,S.w,S.h,S.kit,S.opt);
+  $("#capName").textContent=k.name;
+  $("#capSub").textContent=(S.kit+1)+" of "+KITS.length+" · "+OPTS[S.opt];
+  var sw=$("#capSw"); sw.textContent="";
+  k.rgb.forEach(function(c){var i=document.createElement("i");i.style.background="rgb("+c.map(Math.round).join(",")+")";sw.appendChild(i);});
+  var gi=document.createElement("i");gi.className="g";gi.style.background="rgb("+k.grgb[S.opt].map(Math.round).join(",")+")";sw.appendChild(gi);
+  thumbs.forEach(function(b,i){b.setAttribute("aria-pressed",i===S.kit?"true":"false");});
+}
+var tq=0;
+function renderThumbs(){
+  if(!S.l||!KITS.length)return;
+  var H=Math.max(1,Math.round(THUMBW*S.h/S.w));
+  thumbs.forEach(function(b,i){renderTo(b.querySelector("canvas"),THUMBW,H,i,S.opt);});
+}
+function renderAll(withThumbs){
+  renderMain();
+  if(withThumbs!==false){cancelAnimationFrame(tq);tq=requestAnimationFrame(renderThumbs);}
+}
+
+/* ---------- gallery ---------- */
+function buildGallery(){
+strip.textContent=""; thumbs.length=0;
+KITS.forEach(function(k,i){
+  var b=document.createElement("button"); b.type="button"; b.className="kit"; b.setAttribute("aria-pressed","false");
+  b.setAttribute("aria-label",k.name);
+  var cv=document.createElement("canvas"); cv.width=THUMBW; cv.height=THUMBW; b.appendChild(cv);
+  var nm=document.createElement("b"); nm.textContent=k.name; b.appendChild(nm);
+  var sw=document.createElement("div"); sw.className="sw";
+  k.rgb.forEach(function(c){var e=document.createElement("i");e.style.background="rgb("+c.map(Math.round).join(",")+")";sw.appendChild(e);});
+  b.appendChild(sw);
+  b.addEventListener("click",function(){selectKit(i);});
+  strip.appendChild(b); thumbs.push(b);
+});
+}
+function selectKit(i){
+  if(!KITS.length)return;
+  S.kit=(i+KITS.length)%KITS.length; persist(); renderMain();
+  var b=thumbs[S.kit];
+  if(b&&!S.wide){var rm=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var left=b.offsetLeft-(strip.clientWidth-b.offsetWidth)/2; strip.scrollTo({left:left,behavior:rm?"auto":"smooth"});}
+}
+$("#prev").addEventListener("click",function(){selectKit(S.kit-1);});
+$("#next").addEventListener("click",function(){selectKit(S.kit+1);});
+document.addEventListener("keydown",function(e){
+  var t=e.target,tag=t&&t.tagName;
+  if(tag==="INPUT"||tag==="TEXTAREA")return;
+  if(e.key==="ArrowRight"){selectKit(S.kit+1);e.preventDefault();}
+  else if(e.key==="ArrowLeft"){selectKit(S.kit-1);e.preventDefault();}
+});
+$("#layout").addEventListener("click",function(){
+  S.wide=!S.wide; strip.classList.toggle("grid",S.wide);
+  this.setAttribute("aria-pressed",S.wide?"true":"false");
+  this.textContent=S.wide?"Show as strip":"Show as grid";
+});
+
+/* ---------- controls ---------- */
+document.querySelectorAll('input[name="opt"]').forEach(function(r){
+  if(r.value===S.opt)r.checked=true;
+  r.addEventListener("change",function(){if(r.checked){S.opt=r.value;persist();renderAll();}});
+});
+$("#rep").addEventListener("change",function(){S.rep=this.checked;renderAll();});
+var rq=0;
+function schedule(fn){cancelAnimationFrame(rq);rq=requestAnimationFrame(fn);}
+$("#tol").addEventListener("input",function(){S.tol=+this.value;$("#tolOut").textContent=this.value;schedule(function(){if(S.l){buildMask();renderAll();}});});
+$("#bri").addEventListener("input",function(){S.bri=+this.value;$("#briOut").textContent=(S.bri>0?"+":"")+this.value;schedule(function(){renderAll();});});
+$("#pick").addEventListener("click",function(){
+  S.picking=!S.picking; this.setAttribute("aria-pressed",S.picking?"true":"false");
+  view.classList.toggle("pick",S.picking);
+  setStatus(S.picking?"Click the part of the picture you want replaced.":"");
+});
+view.addEventListener("click",function(e){
+  if(!S.picking||!S.l)return;
+  var r=view.getBoundingClientRect();
+  var x=Math.min(S.w-1,Math.max(0,Math.floor((e.clientX-r.left)/r.width*S.w)));
+  var y=Math.min(S.h-1,Math.max(0,Math.floor((e.clientY-r.top)/r.height*S.h)));
+  var p=(y*S.w+x)*4; S.ground=[S.rgb[p],S.rgb[p+1],S.rgb[p+2]]; S.pick={x:x,y:y};
+  S.picking=false; $("#pick").setAttribute("aria-pressed","false"); view.classList.remove("pick");
+  $("#rep").checked=true; S.rep=true; setStatus("Background updated.");
+  buildMask(); renderAll();
+});
+function setStatus(t){$("#status").textContent=t;}
+
+/* ---------- file input, drop, paste ---------- */
+function openFile(f){
+  if(!f||!/^image\//.test(f.type)){setStatus("That file is not an image. Choose a PNG, JPG or WebP.");return;}
+  setStatus("Loading…");
+  var done=function(src){loadCanvas(src,f.name,f.name);setStatus("");};
+  if(window.createImageBitmap){
+    createImageBitmap(f).then(done,function(){fallback();});
+  }else fallback();
+  function fallback(){
+    var u=URL.createObjectURL(f),im=new Image();
+    im.onload=function(){done(im);URL.revokeObjectURL(u);};
+    im.onerror=function(){setStatus("This image could not be read.");URL.revokeObjectURL(u);};
+    im.src=u;
+  }
+}
+$("#file").addEventListener("change",function(){openFile(this.files&&this.files[0]);this.value="";});
+$("#fileBtn").addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();$("#file").click();}});
+var drop=$("#drop");
+["dragenter","dragover"].forEach(function(t){drop.addEventListener(t,function(e){e.preventDefault();drop.classList.add("drag");});});
+["dragleave","drop"].forEach(function(t){drop.addEventListener(t,function(e){e.preventDefault();drop.classList.remove("drag");});});
+drop.addEventListener("drop",function(e){var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)openFile(f);});
+document.addEventListener("paste",function(e){
+  var it=e.clipboardData&&e.clipboardData.items; if(!it)return;
+  for(var i=0;i<it.length;i++){if(it[i].type.indexOf("image/")===0){openFile(it[i].getAsFile());e.preventDefault();return;}}
+});
+
+/* ---------- save ---------- */
+var saveUrl=null;
+function showFallback(b){
+  if(saveUrl)URL.revokeObjectURL(saveUrl);
+  saveUrl=URL.createObjectURL(b);
+  $("#saveimg").src=saveUrl; $("#saveview").hidden=false;
+  setStatus("Direct saving is not available in this view. Save the image below.");
+}
+$("#saveclose").addEventListener("click",function(){$("#saveview").hidden=true;setStatus("");});
+$("#save").addEventListener("click",function(){
+  if(!S.l||!KITS[S.kit])return;
+  var c=document.createElement("canvas"); renderTo(c,S.w,S.h,S.kit,S.opt);
+  c.toBlob(function(b){
+    if(!b){setStatus("Could not create the PNG.");return;}
+    try{
+      var u=URL.createObjectURL(b), a=document.createElement("a");
+      a.href=u; a.download=S.name+"-"+KITS[S.kit].id+"-"+S.opt+".png";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){URL.revokeObjectURL(u);},4000);
+      showFallback(b); setStatus("Download started. If nothing was saved, save the image below.");
+    }catch(e){showFallback(b);}
+  },"image/png");
+});
+
+/* ---------- built-in sample so the tool opens in a working state ---------- */
+function makeSample(){
+  var c=document.createElement("canvas"); c.width=900; c.height=1200; var x=c.getContext("2d");
+  x.fillStyle="#d99a45"; x.fillRect(0,0,900,1200);
+  x.fillStyle="#17120e"; x.beginPath(); x.moveTo(40,1200); x.quadraticCurveTo(70,880,330,830); x.lineTo(640,830); x.quadraticCurveTo(850,880,870,1200); x.closePath(); x.fill();
+  x.fillStyle="#3a2314"; x.beginPath(); x.ellipse(450,430,300,350,0,0,7); x.fill();
+  x.fillStyle="#2b190d"; x.beginPath(); x.ellipse(250,640,130,150,0,0,7); x.fill();
+  var g=x.createRadialGradient(410,440,30,450,490,260); g.addColorStop(0,"#f3cdaa"); g.addColorStop(1,"#a5633c");
+  x.fillStyle=g; x.beginPath(); x.ellipse(460,500,185,255,0,0,7); x.fill();
+  x.fillStyle="#d6a27d"; x.fillRect(400,720,120,140);
+  x.fillStyle="#241309"; x.beginPath(); x.moveTo(250,400); x.quadraticCurveTo(450,130,690,330); x.quadraticCurveTo(540,310,440,430); x.quadraticCurveTo(350,340,250,400); x.fill();
+  x.fillStyle="#2a150b"; x.beginPath(); x.ellipse(405,470,34,12,0,0,7); x.fill(); x.beginPath(); x.ellipse(545,470,34,12,0,0,7); x.fill();
+  x.fillStyle="#7a2e22"; x.beginPath(); x.ellipse(478,650,52,16,0,0,7); x.fill();
+  x.fillStyle="#f6efe2"; x.beginPath(); x.moveTo(500,800); x.quadraticCurveTo(520,960,660,960); x.quadraticCurveTo(800,960,820,800); x.closePath(); x.fill();
+  x.fillStyle="#18110c"; x.fillRect(500,790,320,60);
+  x.fillStyle="#f6efe2"; x.beginPath(); x.ellipse(660,792,160,26,0,0,7); x.fill();
+  x.fillStyle="#c9915f"; x.beginPath(); x.ellipse(430,930,70,150,.5,0,7); x.fill();
+  x.strokeStyle="rgba(255,248,235,.8)"; x.lineWidth=14; x.lineCap="round";
+  x.beginPath(); x.moveTo(700,760); x.bezierCurveTo(640,700,760,640,690,570); x.stroke();
+  x.lineWidth=9; x.beginPath(); x.moveTo(760,770); x.bezierCurveTo(710,700,820,660,760,590); x.stroke();
+  return c;
+}
+$("#tolOut").textContent=$("#tol").value;
+loadCanvas(makeSample(),"sample","Sample image. You can also drop a file here or paste one.");
+
+/* ---------- kits come live from the Brand Kit Viewer ---------- */
+fetch("/api/kits",{cache:"no-store"}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(d){
+  KITS=(d.kits||[]).map(prepKit).filter(Boolean);
+  KITS.sort(function(a,b){return (a.order==null?1e9:a.order)-(b.order==null?1e9:b.order)||a.name.localeCompare(b.name);});
+  if(!KITS.length){$("#capName").textContent="No kits yet";$("#capSub").textContent="Add one in the Brand Kit Viewer.";return;}
+  var at=KITS.findIndex(function(k){return k.id===savedKit;}); S.kit=at<0?0:at;
+  $("#eyebrow").textContent="Image tool · "+KITS.length+" brand kits";
+  $("#ghTitle").textContent="All "+KITS.length+" kits";
+  buildGallery(); renderAll(true);
+}).catch(function(){
+  $("#capName").textContent="Kits could not be loaded";$("#capSub").textContent="Reload the page to try again.";
+});
+})();
+</script>
+</body>
+</html>

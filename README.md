@@ -5,6 +5,7 @@ An internal page for looking at every brand kit palette while working: Cover Flo
 ## How it works
 
 - `public/index.html` is the whole page.
+- `public/remap/index.html` is Brand Kit Remap (`/remap/`): recolors an image in each kit. It reads the same kit list, so new kits appear there automatically.
 - `netlify/functions/kits.mts` is the small API behind it (`/api/kits`). It keeps the kits in Netlify Blobs, so they survive every redeploy.
 - `src/seed.mts` holds the kits the site starts with. It is copied into storage once, on the first visit. After that, storage is the record.
 
