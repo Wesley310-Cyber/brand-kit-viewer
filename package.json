@@ -1,0 +1,11 @@
+{
+  "name": "brand-kit-viewer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Internal viewer for brand kit palettes. Kits are added on the page and saved in Netlify storage.",
+  "dependencies": {
+    "@netlify/blobs": "^11.0.0",
+    "@netlify/functions": "^6.0.0"
+  }
+}

@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Brand Kit Viewer</title>
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Outfit:wght@300;400;500;600&display=swap">
+<style>
+/* Layout: a quiet neutral stage so the kits supply all the color. Toolbar on top, one 3D stage, a detail panel below. */
+:root{
+  --bg:#ECEEF0; --panel:#FFFFFF; --ink:#15191D; --muted:#5B646C; --line:#D3D8DD; --accent:#24405F; --on-accent:#FFFFFF; --stage:#E2E5E8; --shadow:0 18px 40px -18px rgba(20,28,38,.45);
+  --display:"Cormorant Garamond",Georgia,serif; --sans:"Outfit",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1215; --panel:#171B1F; --ink:#ECEFF1; --muted:#98A1A9; --line:#2A3036; --accent:#A9C2DF; --on-accent:#0F1215; --stage:#13171A; --shadow:0 18px 40px -16px rgba(0,0,0,.8); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1215; --panel:#171B1F; --ink:#ECEFF1; --muted:#98A1A9; --line:#2A3036; --accent:#A9C2DF; --on-accent:#0F1215; --stage:#13171A; --shadow:0 18px 40px -16px rgba(0,0,0,.8); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;
+  padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:flex-end;justify-content:space-between}
+h1{font-family:var(--display);font-weight:600;font-size:38px;line-height:1;margin:0;letter-spacing:-.01em}
+.count{color:var(--muted);font-size:13px;margin-top:6px}
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.seg{display:flex;border:1px solid var(--line);border-radius:999px;background:var(--panel);padding:3px}
+.seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:13px;padding:6px 14px;border-radius:999px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+input[type=search],input[type=text],input[type=url]{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-width:0}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{font:inherit;font-size:13px;font-weight:500;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);border-radius:8px;padding:8px 14px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.warn{background:transparent;color:#B3261E;border-color:#B3261E}
+:root[data-theme="dark"] .btn.warn{color:#FF9A92;border-color:#FF9A92}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.warn{color:#FF9A92;border-color:#FF9A92}}
+#stage{position:relative;height:430px;background:var(--stage);border-radius:14px;overflow:hidden;user-select:none;touch-action:pan-y}
+#stage.grid{height:auto;overflow:visible;background:transparent;touch-action:auto}
+#stage.sphere{height:500px;touch-action:none;cursor:grab}
+.flow{perspective:1500px;position:absolute;inset:0}
+.card{--cw:200px;--ch:276px;position:absolute;left:50%;top:50%;width:var(--cw);height:var(--ch);border-radius:10px;overflow:hidden;background:var(--panel);box-shadow:var(--shadow);cursor:pointer;display:flex;flex-direction:column;transition:transform .45s cubic-bezier(.2,.7,.2,1),opacity .3s;border:1px solid rgba(128,128,128,.25)}
+.card .stripes{flex:1;display:flex;min-height:0}
+.card .stripes i{flex:1}
+.card .cap{padding:9px 11px 10px;background:var(--panel);display:flex;flex-direction:column;gap:1px}
+.card .cap b{font-family:var(--display);font-size:18px;font-weight:600;line-height:1.1}
+.card .cap span{font-size:11px;color:var(--muted)}
+.card.sel{outline:2px solid var(--accent);outline-offset:2px}
+.sphere .card{--cw:104px;--ch:140px;transition:none}
+.sphere .card .cap{padding:5px 7px}.sphere .card .cap b{font-size:13px}.sphere .card .cap span{display:none}
+.gridwrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:16px}
+.gridwrap .card{position:relative;left:auto;top:auto;width:auto;height:230px;transition:box-shadow .2s}
+.nav{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:200}
+.nav button{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--ink);font-size:16px;cursor:pointer}
+.empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--muted);padding:20px}
+#stage.grid .empty{position:static;padding:50px 20px}
+.detail{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.dhead{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-start}
+.dhead h2{font-family:var(--display);font-weight:600;font-size:30px;margin:0;line-height:1.1}
+.dhead p{margin:4px 0 0;color:var(--muted);max-width:60ch}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.sw{display:flex;flex-wrap:wrap;gap:10px}
+.chip{flex:1 1 120px;min-height:96px;border:1px solid rgba(128,128,128,.3);border-radius:10px;padding:10px 12px;text-align:left;font:inherit;cursor:pointer;display:flex;flex-direction:column;justify-content:flex-end;gap:1px}
+.chip b{font-weight:500;font-size:13px}.chip small{font-size:12px;letter-spacing:.06em;opacity:.85}
+.meta{display:flex;flex-wrap:wrap;gap:8px 28px;font-size:13px;color:var(--muted)}
+.meta a{color:var(--accent)}
+.meta b{color:var(--ink);font-weight:500}
+.hint{font-size:12px;color:var(--muted)}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:999px;font-size:13px;z-index:900}
+.veil{position:fixed;inset:0;background:rgba(10,14,18,.6);display:grid;place-items:center;padding:16px;z-index:800;overflow:auto}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;width:min(560px,100%);display:flex;flex-direction:column;gap:12px;max-height:100%;overflow:auto}
+.modal h3{font-family:var(--display);font-size:26px;font-weight:600;margin:0}
+.modal label{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.crow{display:grid;grid-template-columns:40px 1fr 1.3fr 32px;gap:8px;align-items:center}
+.crow input[type=color]{width:40px;height:36px;padding:0;border:1px solid var(--line);border-radius:6px;background:transparent}
+.crow button{border:0;background:transparent;color:var(--muted);font-size:18px;cursor:pointer}
+.mfoot{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.err{color:#B3261E;font-size:13px;min-height:18px}
+@media (max-width:640px){h1{font-size:32px}#stage{height:380px}.card{--cw:150px;--ch:210px}.sphere .card{--cw:88px;--ch:120px}#stage.sphere{height:440px}.tools{width:100%}input[type=search]{flex:1 1 100%}}
+@media (prefers-reduced-motion:reduce){.card{transition:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div><h1>Brand Kit Viewer</h1><div class="count" id="count">Loading kits…</div></div>
+    <div class="tools">
+      <div class="seg" role="group" aria-label="View">
+        <button data-view="flow" aria-pressed="true">Cover Flow</button>
+        <button data-view="sphere" aria-pressed="false">Sphere</button>
+        <button data-view="grid" aria-pressed="false">Grid</button>
+      </div>
+      <input type="search" id="q" placeholder="Find a kit" aria-label="Find a kit">
+      <button class="btn" id="add">Add kit</button>
+    </div>
+  </header>
+  <div id="stage"></div>
+  <section class="detail" id="detail" aria-live="polite"></section>
+</div>
+<div id="toast" hidden></div>
+<div class="veil" id="veil" hidden>
+  <form class="modal" id="form" autocomplete="off">
+    <h3 id="mtitle">Add kit</h3>
+    <label for="f-name">Name<input type="text" id="f-name" required maxlength="60" placeholder="Pall Mall"></label>
+    <label for="f-tag">One-line note<input type="text" id="f-tag" maxlength="140" placeholder="Private members, antique gold, deep navy walls."></label>
+    <div style="display:flex;flex-direction:column;gap:8px"><span class="hint">Colors, 2 to 8. Pick or type a hex code.</span><div id="crows" style="display:flex;flex-direction:column;gap:8px"></div>
+      <div><button type="button" class="btn ghost" id="addc">Add color</button></div></div>
+    <label for="f-fonts">Fonts<input type="text" id="f-fonts" maxlength="80" placeholder="Cormorant Garamond · Outfit"></label>
+    <label for="f-notion">Notion page link<input type="url" id="f-notion" placeholder="https://app.notion.com/p/…"></label>
+    <label for="f-design">Claude Design link<input type="url" id="f-design" placeholder="https://claude.ai/artifact/…"></label>
+    <div class="err" id="err" role="alert"></div>
+    <div class="mfoot"><button type="button" class="btn ghost" id="cancel">Cancel</button><button class="btn" type="submit">Save kit</button></div>
+  </form>
+</div>
+
+<div class="veil" id="pveil" hidden>
+  <form class="modal" id="pform" autocomplete="off" style="width:min(380px,100%)">
+    <h3>Edit passcode</h3>
+    <label for="p-code">Enter the passcode to add, edit or delete kits. This browser will remember it.<input type="password" id="p-code" required autocomplete="off"></label>
+    <div class="err" id="perr" role="alert"></div>
+    <div class="mfoot"><button type="button" class="btn ghost" id="pcancel">Cancel</button><button class="btn" type="submit">Continue</button></div>
+  </form>
+</div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const lum=h=>{const n=parseInt(h.slice(1),16),f=v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)};return .2126*f(n>>16&255)+.7152*f(n>>8&255)+.0722*f(n&255)};
+const onC=h=>lum(h)>.4?'#111111':'#FFFFFF';
+const okHex=h=>/^#[0-9a-fA-F]{6}$/.test(h);
+const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'kit';
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let kits=[], selId=null, view='flow', query='', loaded=false, editing=null, work=[];
+const stage=$('#stage');
+
+function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,1600)}
+function copy(text,msg){
+  const done=()=>toast(msg);
+  try{navigator.clipboard.writeText(text).then(done,()=>fallback())}catch(e){fallback()}
+  function fallback(){const t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();try{document.execCommand('copy')}catch(e){}t.remove();done()}
+}
+function list(){const q=query.trim().toLowerCase();return q?kits.filter(k=>(k.name||'').toLowerCase().includes(q)):kits}
+function cur(){const l=list();return l.find(k=>k.id===selId)||l[0]||null}
+
+function cardHTML(k){
+  return '<div class="card" data-id="'+esc(k.id)+'" role="button" tabindex="0" aria-label="'+esc(k.name)+'"><div class="stripes">'+
+    (k.colors||[]).map(c=>'<i style="background:'+esc(c.hex)+'"></i>').join('')+'</div><div class="cap"><b>'+esc(k.name)+'</b><span>'+(k.colors||[]).length+' colors</span></div></div>';
+}
+
+/* ---------- rendering ---------- */
+function render(){
+  $('#count').textContent=!loaded?'Loading kits…':loadErr?'Could not load kits. Reload to try again.':kits.length+' brand kits';
+  document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.view===view));
+  stopSphere();
+  const l=list(), k=cur();
+  stage.className=view==='grid'?'grid':view==='sphere'?'sphere':'';
+  if(!l.length){
+    stage.innerHTML='<div class="empty"><div>'+(loaded?(kits.length?'No kit matches that search.':'No kits yet. Use Add kit to save the first one.'):'Loading…')+'</div></div>';
+  } else if(view==='grid'){
+    stage.innerHTML='<div class="gridwrap">'+l.map(cardHTML).join('')+'</div>';
+  } else if(view==='sphere'){
+    stage.innerHTML=l.map(cardHTML).join('');
+    startSphere(l.length);
+  } else {
+    stage.innerHTML='<div class="flow">'+l.map(cardHTML).join('')+'</div><div class="nav"><button id="prev" aria-label="Previous kit">‹</button><button id="next" aria-label="Next kit">›</button></div>';
+    placeFlow();
+  }
+  markSel();
+  renderDetail(k);
+}
+function markSel(){const k=cur();stage.querySelectorAll('.card').forEach(c=>c.classList.toggle('sel',!!k&&c.dataset.id===k.id&&view!=='flow'))}
+
+function placeFlow(){
+  const l=list(), k=cur(), idx=Math.max(0,l.findIndex(x=>x.id===(k&&k.id)));
+  const els=[...stage.querySelectorAll('.card')];
+  els.forEach((el,i)=>{
+    const d=i-idx, a=Math.abs(d), s=Math.sign(d), w=el.offsetWidth;
+    el.style.zIndex=100-a;
+    el.style.opacity=a>5?0:1;
+    el.style.pointerEvents=a>5?'none':'auto';
+    el.style.transform=d===0?'translate(-50%,-56%) translateZ(90px)':
+      'translate(-50%,-56%) translateX('+(s*(w*.78+(a-1)*w*.3))+'px) translateZ('+(-110-a*14)+'px) rotateY('+(-s*58)+'deg)';
+  });
+}
+function step(n){
+  const l=list(); if(!l.length)return;
+  let i=l.findIndex(x=>x.id===(cur()&&cur().id)); i=Math.min(l.length-1,Math.max(0,i+n));
+  select(l[i].id);
+}
+function select(id){
+  selId=id; markSel();
+  if(view==='flow')placeFlow();
+  renderDetail(cur());
+}
+
+function renderDetail(k){
+  const d=$('#detail');
+  if(!k){d.innerHTML='<div class="hint">Select a kit to see its colors, fonts and links.</div>';return}
+  const links=[];
+  if(k.notionUrl)links.push('<span><b>Notion</b> <a href="'+esc(k.notionUrl)+'" target="_blank" rel="noopener">Open page</a></span>');
+  if(k.designUrl)links.push('<span><b>Claude Design</b> <a href="'+esc(k.designUrl)+'" target="_blank" rel="noopener">Open system</a></span>');
+  d.innerHTML=
+   '<div class="dhead"><div><h2>'+esc(k.name)+'</h2>'+(k.tagline?'<p>'+esc(k.tagline)+'</p>':'')+'</div>'+
+   '<div class="acts"><button class="btn ghost" id="css">Copy as CSS</button><button class="btn ghost" id="edit">Edit</button><button class="btn warn" id="del">Delete</button></div></div>'+
+   '<div class="sw">'+(k.colors||[]).map((c,i)=>'<button class="chip" data-hex="'+esc(c.hex)+'" style="background:'+esc(c.hex)+';color:'+onC(c.hex)+'"><b>'+esc(c.name||'Color '+(i+1))+'</b><small>'+esc(c.hex.toUpperCase())+'</small></button>').join('')+'</div>'+
+   '<div class="hint">Click a swatch to copy its hex code.</div>'+
+   '<div class="meta">'+(k.fonts?'<span><b>Fonts</b> '+esc(k.fonts)+'</span>':'')+links.join('')+'</div>';
+}
+
+/* ---------- sphere ---------- */
+let raf=0, rot={x:.35,y:0}, vel={x:0,y:reduce?0:.0035}, pts=[], dragging=false;
+function startSphere(n){
+  pts=[];const g=Math.PI*(3-Math.sqrt(5));
+  for(let i=0;i<n;i++){const y=n===1?0:1-2*(i+.5)/n,r=Math.sqrt(Math.max(0,1-y*y)),p=i*g;pts.push({x:Math.cos(p)*r,y:y,z:Math.sin(p)*r})}
+  const els=[...stage.querySelectorAll('.card')];
+  const tick=()=>{
+    const W=stage.clientWidth,H=stage.clientHeight,R=Math.min(W*.4,H*.4);
+    if(!dragging){rot.y+=vel.y;rot.x+=(0.35-rot.x)*.01;vel.y+= ((reduce?0:.0035)-vel.y)*.02}
+    const cy=Math.cos(rot.y),sy=Math.sin(rot.y),cx=Math.cos(rot.x),sx=Math.sin(rot.x);
+    els.forEach((el,i)=>{
+      const p=pts[i];if(!p)return;
+      const x=p.x*cy+p.z*sy, z=-p.x*sy+p.z*cy, y=p.y*cx-z*sx, z2=p.y*sx+z*cx;
+      const per=1/(1-z2*.32), t=(z2+1)/2;
+      el.style.transform='translate(-50%,-50%) translate('+(x*R*per*1.35)+'px,'+(y*R*per*.8)+'px) scale('+(per*.95)+')';
+      el.style.opacity=.3+.7*t; el.style.zIndex=Math.round(t*100);
+    });
+    raf=requestAnimationFrame(tick);
+  };
+  tick();
+}
+function stopSphere(){cancelAnimationFrame(raf);raf=0}
+
+/* ---------- input ---------- */
+let down=null, moved=false;
+stage.addEventListener('pointerdown',e=>{
+  if(view==='grid'||e.target.closest('.nav'))return;
+  down={x:e.clientX,y:e.clientY,lx:e.clientX,ly:e.clientY,acc:0};moved=false;dragging=view==='sphere';
+});
+window.addEventListener('pointermove',e=>{
+  if(!down)return;
+  const dx=e.clientX-down.lx, dy=e.clientY-down.ly;
+  if(Math.abs(e.clientX-down.x)+Math.abs(e.clientY-down.y)>6)moved=true;
+  if(view==='sphere'){rot.y+=dx*.008;rot.x=Math.max(-1.2,Math.min(1.2,rot.x-dy*.006));vel.y=dx*.0008}
+  else if(view==='flow'){down.acc+=dx;while(Math.abs(down.acc)>70){step(down.acc>0?-1:1);down.acc-=Math.sign(down.acc)*70}}
+  down.lx=e.clientX;down.ly=e.clientY;
+});
+window.addEventListener('pointerup',()=>{down=null;dragging=false});
+stage.addEventListener('click',e=>{
+  if(moved){moved=false;return}
+  const c=e.target.closest('.card');if(c){select(c.dataset.id);return}
+  if(e.target.id==='prev')step(-1);if(e.target.id==='next')step(1);
+});
+stage.addEventListener('keydown',e=>{const c=e.target.closest('.card');if(c&&(e.key==='Enter'||e.key===' ')){e.preventDefault();select(c.dataset.id)}});
+stage.addEventListener('wheel',e=>{if(view!=='flow')return;if(Math.abs(e.deltaX)>Math.abs(e.deltaY)){e.preventDefault();step(e.deltaX>0?1:-1)}},{passive:false});
+window.addEventListener('keydown',e=>{
+  if(!$('#veil').hidden||!$('#pveil').hidden||/INPUT|TEXTAREA/.test((e.target||{}).tagName))return;
+  if(view==='flow'&&(e.key==='ArrowRight'||e.key==='ArrowLeft'))step(e.key==='ArrowRight'?1:-1);
+});
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{view=b.dataset.view;try{history.replaceState(null,'','#'+view)}catch(e){}render()}));
+$('#q').addEventListener('input',e=>{query=e.target.value;render()});
+$('#detail').addEventListener('click',e=>{
+  const ch=e.target.closest('.chip');if(ch){copy(ch.dataset.hex.toUpperCase(),'Copied '+ch.dataset.hex.toUpperCase());return}
+  const k=cur();if(!k)return;
+  if(e.target.id==='css'){copy(':root{\n'+k.colors.map((c,i)=>'  --'+slug(c.name||'color-'+(i+1))+': '+c.hex.toUpperCase()+';').join('\n')+'\n}','Copied CSS variables');}
+  if(e.target.id==='edit')openForm(k);
+  if(e.target.id==='del'){
+    const b=e.target;
+    if(b.dataset.armed){api('DELETE',k.id).then(()=>toast('Deleted '+k.name),x=>{if(!x||x.code!=='cancelled')toast('Could not delete')})}
+    else{b.dataset.armed='1';b.textContent='Confirm delete';setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent='Delete'}},3000)}
+  }
+});
+
+/* ---------- add / edit ---------- */
+function crows(){
+  $('#crows').innerHTML=work.map((c,i)=>'<div class="crow"><input type="color" value="'+(okHex(c.hex)?c.hex:'#888888')+'" data-i="'+i+'" data-k="pick" aria-label="Pick color '+(i+1)+'"><input type="text" value="'+esc(c.hex)+'" data-i="'+i+'" data-k="hex" maxlength="7" placeholder="#001530" aria-label="Hex '+(i+1)+'"><input type="text" value="'+esc(c.name||'')+'" data-i="'+i+'" data-k="name" maxlength="30" placeholder="Name (optional)" aria-label="Color name '+(i+1)+'"><button type="button" data-rm="'+i+'" aria-label="Remove color">×</button></div>').join('');
+  $('#addc').disabled=work.length>=8;
+}
+function openForm(k){
+  editing=k||null;$('#mtitle').textContent=k?'Edit kit':'Add kit';$('#err').textContent='';
+  $('#f-name').value=k?k.name:'';$('#f-tag').value=k?k.tagline||'':'';$('#f-fonts').value=k?k.fonts||'':'';
+  $('#f-notion').value=k?k.notionUrl||'':'';$('#f-design').value=k?k.designUrl||'':'';
+  work=k?k.colors.map(c=>({hex:c.hex,name:c.name||''})):[{hex:'',name:''},{hex:'',name:''},{hex:'',name:''},{hex:'',name:''},{hex:'',name:''}];
+  crows();$('#veil').hidden=false;$('#f-name').focus();
+}
+function closeForm(){$('#veil').hidden=true}
+$('#add').addEventListener('click',()=>openForm(null));
+$('#cancel').addEventListener('click',closeForm);
+$('#veil').addEventListener('click',e=>{if(e.target.id==='veil')closeForm()});
+$('#addc').addEventListener('click',()=>{if(work.length<8){work.push({hex:'',name:''});crows()}});
+$('#crows').addEventListener('input',e=>{
+  const t=e.target,i=+t.dataset.i;if(isNaN(i))return;
+  if(t.dataset.k==='pick'){work[i].hex=t.value;crows()}
+  else if(t.dataset.k==='hex'){let v=t.value.trim();if(v&&v[0]!=='#')v='#'+v;work[i].hex=v;if(okHex(v)){const p=t.parentNode.querySelector('[data-k=pick]');if(p)p.value=v}}
+  else work[i].name=t.value;
+});
+$('#crows').addEventListener('click',e=>{const r=e.target.closest('[data-rm]');if(r){work.splice(+r.dataset.rm,1);crows()}});
+$('#form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const err=m=>{$('#err').textContent=m};
+  const name=$('#f-name').value.trim();if(!name)return err('Give the kit a name.');
+  const cols=work.filter(c=>c.hex).map(c=>({hex:c.hex.toUpperCase(),name:c.name.trim()}));
+  if(cols.some(c=>!okHex(c.hex)))return err('Every color needs a 6-digit hex code, like #B5A642.');
+  if(cols.length<2)return err('Add at least two colors.');
+  const nu=$('#f-notion').value.trim(), du=$('#f-design').value.trim();
+  if((nu&&!/^https:\/\//.test(nu))||(du&&!/^https:\/\//.test(du)))return err('Links must start with https://');
+  const data={name,tagline:$('#f-tag').value.trim(),colors:cols,fonts:$('#f-fonts').value.trim(),notionUrl:nu,designUrl:du,
+    order:editing?(editing.order==null?kits.length:editing.order):(kits.reduce((m,k)=>Math.max(m,k.order||0),0)+1)};
+  let id=editing?editing.id:slug(name);
+  if(!editing&&kits.some(k=>k.id===id))id+='-'+Date.now().toString(36).slice(-3);
+  try{await api('PUT',id,data);closeForm();select(id);toast(editing?'Saved changes':'Added '+name)}
+  catch(x){err(x&&x.code==='cancelled'?'A passcode is needed to save.':(x&&x.message)||'Could not save. Try again.')}
+});
+
+/* ---------- data ---------- */
+/* Kits live in the site's storage, behind /api/kits. Reading is open; writing needs the edit passcode. */
+function getPass(){try{return localStorage.getItem('bkv-pass')||''}catch(e){return ''}}
+function setPass(v){try{v?localStorage.setItem('bkv-pass',v):localStorage.removeItem('bkv-pass')}catch(e){}memPass=v}
+let memPass='', passWait=null;
+function askPass(msg){
+  $('#perr').textContent=msg||'';$('#p-code').value='';$('#pveil').hidden=false;$('#p-code').focus();
+  return new Promise((res,rej)=>{passWait={res,rej}});
+}
+$('#pform').addEventListener('submit',e=>{e.preventDefault();const v=$('#p-code').value.trim();if(!v)return;$('#pveil').hidden=true;const w=passWait;passWait=null;w&&w.res(v)});
+$('#pcancel').addEventListener('click',()=>{$('#pveil').hidden=true;const w=passWait;passWait=null;w&&w.rej({code:'cancelled'})});
+async function api(method,id,data){
+  let pass=memPass||getPass(), msg='';
+  for(let tries=0;tries<3;tries++){
+    if(!pass)pass=await askPass(msg);
+    let r;
+    try{r=await fetch('/api/kits/'+encodeURIComponent(id),{method,headers:{'content-type':'application/json','x-edit-passcode':pass},body:data?JSON.stringify(data):undefined})}
+    catch(e){throw {message:'Could not reach the site. Check your connection.'}}
+    if(r.status===401){setPass('');pass='';msg='That passcode was not accepted. Try again.';continue}
+    if(!r.ok){let m='';try{m=(await r.json()).error}catch(e){}throw {message:m||'Could not save. Try again.'}}
+    setPass(pass);await load();return;
+  }
+  throw {message:'The passcode was not accepted.'};
+}
+let loadErr=false;
+async function load(){
+  try{
+    const r=await fetch('/api/kits',{cache:'no-store'});if(!r.ok)throw 0;
+    kits=((await r.json()).kits||[]).filter(k=>k.name&&Array.isArray(k.colors));
+    kits.sort((a,b)=>(a.order==null?1e9:a.order)-(b.order==null?1e9:b.order)||a.name.localeCompare(b.name));
+    loadErr=false;
+  }catch(e){loadErr=!kits.length}
+  loaded=true;render();
+}
+(function init(){
+  const h=(location.hash||'').slice(1);if(['flow','sphere','grid'].includes(h))view=h;
+  render();load();
+})();
+})();
+</script>
+</body>
+</html>
